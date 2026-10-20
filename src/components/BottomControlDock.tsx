@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Volume2, VolumeX, MousePointer, Gamepad2, HelpCircle, ChevronDown, ChevronUp, Gauge, LogOut, Plane, Rocket, Compass, Sparkles } from 'lucide-react';
-import { AircraftType, AIRCRAFT_MODELS } from '../game/aircraft';
+import { Volume2, VolumeX, MousePointer, Gamepad2, HelpCircle, ChevronDown, ChevronUp, Gauge, LogOut } from 'lucide-react';
+import { AircraftType } from '../game/aircraft';
 
 interface BottomControlDockProps {
   speed: number;
@@ -10,8 +10,8 @@ interface BottomControlDockProps {
   onToggleMouseControl: () => void;
   touchControlsVisible: boolean;
   onToggleTouchControls: () => void;
-  currentAircraftType: AircraftType;
-  onSelectAircraftType: (type: AircraftType) => void;
+  currentAircraftType?: AircraftType;
+  onSelectAircraftType?: (type: AircraftType) => void;
   onExitGame: () => void;
 }
 
@@ -23,26 +23,10 @@ export const BottomControlDock: React.FC<BottomControlDockProps> = ({
   onToggleMouseControl,
   touchControlsVisible,
   onToggleTouchControls,
-  currentAircraftType,
-  onSelectAircraftType,
   onExitGame,
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [showModelMenu, setShowModelMenu] = useState(false);
   const [showHelpModal, setShowHelpModal] = useState(false);
-
-  const getModelIcon = (type: AircraftType) => {
-    switch (type) {
-      case 'JET':
-        return <Rocket className="w-4 h-4 text-sky-400" />;
-      case 'HELICOPTER':
-        return <Compass className="w-4 h-4 text-amber-400" />;
-      case 'SPACESHIP':
-        return <Sparkles className="w-4 h-4 text-purple-400" />;
-      default:
-        return <Plane className="w-4 h-4 text-rose-400" />;
-    }
-  };
 
   return (
     <>
@@ -95,53 +79,8 @@ export const BottomControlDock: React.FC<BottomControlDockProps> = ({
             </div>
           </div>
 
-          {/* Right: Controls & Aircraft Model Selector */}
+          {/* Right: Controls (Model wahana disembunyikan saat terbang) */}
           <div className="flex items-center gap-2">
-            {/* Aircraft Model Dropdown */}
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => setShowModelMenu(!showModelMenu)}
-                title="Ganti Model Pesawat"
-                className="p-2 bg-slate-800/80 hover:bg-slate-700/80 rounded-xl text-sky-300 hover:text-white border border-slate-700/60 transition-colors flex items-center gap-1.5 text-xs font-semibold cursor-pointer"
-              >
-                {getModelIcon(currentAircraftType)}
-                <span className="hidden sm:inline">Model Wahana</span>
-              </button>
-
-              {showModelMenu && (
-                <div className="absolute bottom-full mb-2 right-0 bg-slate-900 border border-sky-500/30 rounded-2xl p-2.5 shadow-2xl min-w-[220px] flex flex-col gap-1.5 z-40 backdrop-blur-md">
-                  <span className="text-[11px] font-bold text-sky-400 px-2 pb-1 border-b border-slate-800 uppercase tracking-wider">
-                    Pilih Model Pesawat
-                  </span>
-                  {AIRCRAFT_MODELS.map((model) => (
-                    <button
-                      key={model.id}
-                      type="button"
-                      onClick={() => {
-                        onSelectAircraftType(model.id);
-                        setShowModelMenu(false);
-                      }}
-                      className={`text-left text-xs px-2.5 py-2 rounded-xl flex items-center gap-2.5 transition-colors cursor-pointer ${
-                        currentAircraftType === model.id
-                          ? 'bg-sky-500 text-slate-950 font-bold'
-                          : 'text-slate-300 hover:bg-slate-800'
-                      }`}
-                    >
-                      <div className="p-1 rounded-lg bg-slate-950/60 shrink-0">
-                        {getModelIcon(model.id)}
-                      </div>
-                      <div className="min-w-0">
-                        <span className="block font-bold truncate">{model.name}</span>
-                        <span className={`block text-[10px] truncate ${currentAircraftType === model.id ? 'text-slate-900' : 'text-slate-400'}`}>
-                          {model.tagline}
-                        </span>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
 
             {/* Mouse Steer Toggle */}
             <button

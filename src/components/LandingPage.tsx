@@ -18,6 +18,8 @@ import {
   X,
   Gauge,
   Flame,
+  Shield,
+  RotateCw,
 } from 'lucide-react';
 
 interface LandingPageProps {
@@ -35,6 +37,8 @@ interface LandingPageProps {
 
 export const LandingPage: React.FC<LandingPageProps> = ({
   licenseType,
+  selectedAircraftType,
+  onSelectAircraftType,
   onOpenActivationModal,
   onOpenSettings,
   onStartSinglePlayer,
@@ -45,20 +49,69 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   const [p1Vehicle, setP1Vehicle] = useState<AircraftType>('JET');
   const [p2Vehicle, setP2Vehicle] = useState<AircraftType>('PROPELLER');
 
-  const renderVehicleIcon = (type: AircraftType) => {
+  const renderVehicleIcon = (type: AircraftType, className = 'w-4 h-4') => {
     switch (type) {
       case 'JET':
-        return <Rocket className="w-4 h-4 text-sky-400" />;
+        return <Rocket className={`${className} text-sky-400`} />;
       case 'HELICOPTER':
-        return <Compass className="w-4 h-4 text-amber-400" />;
+        return <Compass className={`${className} text-amber-400`} />;
       case 'SPACESHIP':
-        return <Sparkles className="w-4 h-4 text-purple-400" />;
+        return <Sparkles className={`${className} text-purple-400`} />;
       default:
-        return <Plane className="w-4 h-4 text-emerald-400" />;
+        return <Plane className={`${className} text-rose-400`} />;
     }
   };
 
-  // Langsung terbang 1 pemain tanpa model wahana & tanpa memasukkan nama
+  // Aircraft Stats metadata for 3D showcase
+  const getAircraftStats = (type: AircraftType) => {
+    switch (type) {
+      case 'JET':
+        return {
+          speedLabel: '98%',
+          speedVal: 98,
+          maneuverLabel: '90%',
+          maneuverVal: 90,
+          stabilityLabel: '82%',
+          stabilityVal: 82,
+          feature: 'Twin Jet Afterburners & Kecepatan Tinggi',
+        };
+      case 'HELICOPTER':
+        return {
+          speedLabel: '75%',
+          speedVal: 75,
+          maneuverLabel: '95%',
+          maneuverVal: 95,
+          stabilityLabel: '96%',
+          stabilityVal: 96,
+          feature: 'Baling-Baling Ganda & Kontrol Presisi Ekstrem',
+        };
+      case 'SPACESHIP':
+        return {
+          speedLabel: '95%',
+          speedVal: 95,
+          maneuverLabel: '88%',
+          maneuverVal: 88,
+          stabilityLabel: '92%',
+          stabilityVal: 92,
+          feature: 'Mesin Propulsi Ion & Aerodinamika Futuristik',
+        };
+      default: // PROPELLER
+        return {
+          speedLabel: '80%',
+          speedVal: 80,
+          maneuverLabel: '86%',
+          maneuverVal: 86,
+          stabilityLabel: '88%',
+          stabilityVal: 88,
+          feature: 'Baling-Baling Depan Klasik & Handling Seimbang',
+        };
+    }
+  };
+
+  const currentStats = getAircraftStats(selectedAircraftType);
+  const currentModelInfo = AIRCRAFT_MODELS.find((m) => m.id === selectedAircraftType) || AIRCRAFT_MODELS[0];
+
+  // Langsung terbang 1 pemain dengan wahana pilihan tanpa memasukkan nama
   const handleLaunchSoloDirect = () => {
     onStartSinglePlayer('Penerbang');
   };
@@ -119,13 +172,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         </div>
       </header>
 
-      {/* Main Hero Section (Model Wahana Disembunyikan pada Menu 1 Pemain) */}
+      {/* Main Content Area */}
       <main className="max-w-5xl w-full mx-auto px-4 py-6 sm:py-8 flex-1 flex flex-col justify-center space-y-6">
-        {/* Clean Hero Header Banner - Tanpa Model Wahana 1 Pemain */}
-        <div className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-sky-950/40 via-slate-900/80 to-slate-950 border border-sky-500/30 p-6 sm:p-8 shadow-2xl text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-500/15 border border-sky-400/30 text-sky-300 text-xs font-bold mb-3">
+        {/* Intro Badge & Title */}
+        <div className="text-center space-y-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-500/15 border border-sky-400/30 text-sky-300 text-xs font-bold">
             <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-            <span>Simulator Penerbangan & Bank Soal Ujian Terintegrasi</span>
+            <span>Simulasi Penerbangan 3D & Bank Soal Ujian Terintegrasi</span>
           </div>
 
           <h1 className="text-2xl sm:text-4xl md:text-5xl font-black text-white tracking-tight leading-tight">
@@ -135,26 +188,164 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             </span>
           </h1>
 
-          <p className="max-w-2xl mx-auto text-xs sm:text-sm text-slate-300 mt-2.5 leading-relaxed">
-            Kendalikan pesawat dengan stik analog responsif, tembus gerbang bulat di setiap lintasan, dan jawab soal ujian tanpa jeda. Pilih mode di bawah untuk memulai!
+          <p className="max-w-2xl mx-auto text-xs sm:text-sm text-slate-300 leading-relaxed">
+            Kendalikan pesawat dengan stik analog responsif, tembus gerbang bulat di setiap lintasan, dan jawab soal ujian tanpa jeda.
           </p>
+        </div>
 
-          <div className="flex flex-wrap items-center justify-center gap-4 pt-4 text-xs font-semibold text-slate-400">
-            <span className="flex items-center gap-1.5 bg-slate-900/90 px-3 py-1 rounded-full border border-slate-800">
-              🕹️ Stik Analog Responsif
-            </span>
-            <span className="flex items-center gap-1.5 bg-slate-900/90 px-3 py-1 rounded-full border border-slate-800">
-              👥 Split Screen 2 Pemain
-            </span>
-            <span className="flex items-center gap-1.5 bg-slate-900/90 px-3 py-1 rounded-full border border-slate-800">
-              📊 Impor & Ekspor Excel
-            </span>
+        {/* 3D VEHICLE SHOWCASE SECTION (Ditampilkan Kembali di Halaman Utama) */}
+        <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-slate-900/90 via-sky-950/40 to-slate-900/95 border border-sky-500/35 p-4 sm:p-6 shadow-2xl backdrop-blur-md">
+          {/* Header Showcase */}
+          <div className="flex flex-wrap items-center justify-between gap-2 pb-3 mb-4 border-b border-sky-500/20">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 rounded-xl bg-sky-500/20 text-sky-400 border border-sky-400/30">
+                <RotateCw className="w-4 h-4" />
+              </div>
+              <div>
+                <h2 className="text-sm sm:text-base font-black text-white tracking-wide">
+                  Wahana Penerbangan 3D
+                </h2>
+                <p className="text-[11px] text-slate-400">
+                  Pratinjau model 3D interaktif • Putar bebas & pilih wahana untuk terbang Solo
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-1.5 text-[11px] font-semibold text-sky-300 bg-sky-500/15 border border-sky-400/30 px-3 py-1 rounded-full">
+              <span>🖱️ Usap / Geser untuk Memutar 3D</span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
+            {/* Left: 3D Interactive Canvas Preview */}
+            <div className="lg:col-span-7 h-56 sm:h-64 md:h-72 w-full rounded-2xl bg-gradient-to-b from-sky-950/60 via-slate-900/90 to-slate-950 border border-sky-500/30 relative overflow-hidden flex items-center justify-center shadow-inner group">
+              <AirplaneCanvasPreview aircraftType={selectedAircraftType} className="w-full h-full" />
+
+              {/* Overlay Badges */}
+              <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-slate-950/80 backdrop-blur-md border border-sky-400/40 px-3 py-1 rounded-xl text-xs font-black text-white shadow-lg">
+                {renderVehicleIcon(selectedAircraftType, 'w-4 h-4')}
+                <span>{currentModelInfo.name}</span>
+              </div>
+
+              <div className="absolute bottom-2.5 right-3 text-[10px] text-slate-400 bg-slate-950/80 backdrop-blur-sm px-2.5 py-1 rounded-lg border border-slate-800 flex items-center gap-1">
+                <span>3D Real-time Model</span>
+              </div>
+            </div>
+
+            {/* Right: Aircraft Selector Grid & Live Specs */}
+            <div className="lg:col-span-5 flex flex-col justify-between space-y-3.5">
+              {/* Aircraft Switcher Grid */}
+              <div className="space-y-1.5">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                  Pilih Model Wahana (1 Pemain):
+                </span>
+                <div className="grid grid-cols-2 gap-2">
+                  {AIRCRAFT_MODELS.map((model) => {
+                    const isSelected = selectedAircraftType === model.id;
+                    return (
+                      <button
+                        key={model.id}
+                        type="button"
+                        onClick={() => onSelectAircraftType(model.id)}
+                        className={`p-2.5 rounded-2xl border text-left transition-all cursor-pointer flex items-center gap-2.5 ${
+                          isSelected
+                            ? 'bg-gradient-to-r from-sky-500 to-teal-400 text-slate-950 border-white font-black shadow-lg shadow-sky-500/30 scale-[1.02]'
+                            : 'bg-slate-900/80 border-slate-700/80 text-slate-300 hover:border-sky-500/60 hover:bg-slate-800/80'
+                        }`}
+                      >
+                        <div
+                          className={`p-1.5 rounded-xl shrink-0 ${
+                            isSelected ? 'bg-slate-950 text-sky-400' : 'bg-slate-800 text-slate-400'
+                          }`}
+                        >
+                          {renderVehicleIcon(model.id, 'w-4 h-4')}
+                        </div>
+                        <div className="min-w-0">
+                          <span className="text-xs font-bold truncate block">
+                            {model.name.replace('Pesawat ', '')}
+                          </span>
+                          <span
+                            className={`text-[10px] truncate block ${
+                              isSelected ? 'text-slate-900 font-semibold' : 'text-slate-400'
+                            }`}
+                          >
+                            {model.id === 'PROPELLER'
+                              ? 'Klasik'
+                              : model.id === 'JET'
+                              ? 'Supersonik'
+                              : model.id === 'HELICOPTER'
+                              ? 'Taktis'
+                              : 'Futuristik'}
+                          </span>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Dynamic Stats Bars */}
+              <div className="p-3 bg-slate-900/90 rounded-2xl border border-slate-800 space-y-2">
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between text-xs font-bold">
+                    <span className="flex items-center gap-1.5 text-slate-300">
+                      <Gauge className="w-3.5 h-3.5 text-sky-400" />
+                      Kecepatan & Daya Dorong
+                    </span>
+                    <span className="text-sky-300 font-mono">{currentStats.speedLabel}</span>
+                  </div>
+                  <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                    <div
+                      className="bg-gradient-to-r from-sky-400 to-teal-400 h-full rounded-full transition-all duration-300"
+                      style={{ width: `${currentStats.speedVal}%` }}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between text-xs font-bold">
+                    <span className="flex items-center gap-1.5 text-slate-300">
+                      <Flame className="w-3.5 h-3.5 text-amber-400" />
+                      Kelincahan Bermanuver
+                    </span>
+                    <span className="text-amber-300 font-mono">{currentStats.maneuverLabel}</span>
+                  </div>
+                  <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                    <div
+                      className="bg-gradient-to-r from-amber-400 to-yellow-400 h-full rounded-full transition-all duration-300"
+                      style={{ width: `${currentStats.maneuverVal}%` }}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between text-xs font-bold">
+                    <span className="flex items-center gap-1.5 text-slate-300">
+                      <Shield className="w-3.5 h-3.5 text-emerald-400" />
+                      Kestabilan Meluncur
+                    </span>
+                    <span className="text-emerald-300 font-mono">{currentStats.stabilityLabel}</span>
+                  </div>
+                  <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                    <div
+                      className="bg-gradient-to-r from-emerald-400 to-teal-400 h-full rounded-full transition-all duration-300"
+                      style={{ width: `${currentStats.stabilityVal}%` }}
+                    />
+                  </div>
+                </div>
+
+                <div className="pt-1 text-[11px] text-slate-300 border-t border-slate-800 flex items-center gap-1">
+                  <span className="text-amber-400">⚡</span>
+                  <span className="truncate">{currentStats.feature}</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
         {/* 3 Main Action Cards (1 Pemain, 2 Pemain, Pengaturan) */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* 1. Mode 1 Pemain - Langsung terbang tanpa masukkan nama & tanpa pemilihan wahana */}
+          {/* 1. Mode 1 Pemain - Langsung terbang dengan wahana yang dipilih tanpa masukkan nama */}
           <div
             onClick={handleLaunchSoloDirect}
             className="p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-sky-500/15 via-slate-900/90 to-slate-900 border border-sky-500/40 hover:border-sky-400 hover:shadow-2xl hover:shadow-sky-500/20 transition-all cursor-pointer group active:scale-[0.99] flex flex-col justify-between"
@@ -165,7 +356,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   <User className="w-6 h-6" />
                 </div>
                 <span className="text-[10px] font-black uppercase tracking-wider text-sky-300 bg-sky-500/20 border border-sky-400/40 px-2.5 py-0.5 rounded-full">
-                  Langsung Main
+                  Langsung Terbang
                 </span>
               </div>
 
@@ -173,12 +364,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 1 Pemain (Solo)
               </h3>
               <p className="text-xs text-slate-300 mt-1.5 leading-relaxed">
-                Langsung meluncur terbang solo di angkasa dengan stik analog dan jawab soal ujian di setiap lintasan dinamis.
+                Langsung meluncur terbang solo di angkasa dengan wahana pilihanmu, kendali stik analog, dan jawab kuis tanpa jeda.
               </p>
             </div>
 
             <div className="pt-5 flex items-center justify-between text-xs font-bold text-sky-400">
-              <span className="font-black text-white group-hover:text-sky-300">Mulai Terbang Sekarang!</span>
+              <span className="font-black text-white group-hover:text-sky-300">
+                Terbang dengan {currentModelInfo.name.replace('Pesawat ', '')}!
+              </span>
               <Play className="w-4 h-4 fill-sky-400 group-hover:translate-x-1 transition-transform" />
             </div>
           </div>
